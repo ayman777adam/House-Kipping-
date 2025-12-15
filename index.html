@@ -50,7 +50,6 @@
         .error-pulse { animation: pulseRed 1.5s infinite; border-color: #ef4444 !important; background-color: #fef2f2 !important; }
         .dark .error-pulse { background-color: #450a0a !important; }
 
-        /* Time Input Styling */
         input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
         input[type="time"] { background: transparent; border: none; color: inherit; text-align: center; font-family: 'Tajawal', sans-serif; font-weight: bold; width: 60px; padding: 0; }
         input[type="time"]:focus { outline: none; background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -58,7 +57,7 @@
         @media print {
             @page { size: A4 landscape; margin: 5mm; }
             body { background-color: white !important; color: black !important; -webkit-print-color-adjust: exact; margin: 0; padding: 0; direction: rtl !important; }
-            #mainApp, #loginScreen, #pickerModal, #closeOptionsModal, #teamModal, #confirmModal, .no-print, .dev-signature-header { display: none !important; }
+            #mainApp, #loginScreen, #pickerModal, #closeOptionsModal, #teamModal, #langModal, #confirmModal, .no-print, .dev-signature-header { display: none !important; }
             #printArea { display: block !important; width: 100%; }
             table { width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #000; }
             th, td { border: 1px solid #000; padding: 4px; text-align: center; }
@@ -70,30 +69,35 @@
 <body class="bg-[#f8f9fa] dark:bg-dark-bg text-gray-800 dark:text-gray-100 h-[100dvh] flex flex-col overflow-hidden transition-colors duration-300">
 
     <div id="loginScreen" class="fixed inset-0 z-[200] bg-dark-bg flex flex-col items-center justify-center p-6 text-white overflow-y-auto">
+        
+        <button onclick="app.openLangModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center text-gold-500 shadow-lg active:scale-95 transition-all">
+            <i class="fas fa-globe text-xl"></i>
+        </button>
+
         <div class="w-full max-w-md space-y-6 text-center">
             <div class="inline-block p-5 rounded-full border-2 border-gold-500/50 bg-gradient-to-b from-gray-800 to-gray-900 shadow-2xl shadow-gold-500/20">
                 <i class="fas fa-crown text-4xl text-gold-500"></i>
             </div>
             <div>
                 <h1 class="text-2xl font-bold mb-1 text-gold-500">ELITE CLOUD</h1>
-                <p class="text-gray-400 text-xs tracking-widest uppercase">Multi-User System</p>
+                <p class="text-gray-400 text-xs tracking-widest uppercase" data-i18n="systemTitle">Multi-User System</p>
             </div>
 
             <div class="bg-gray-800/50 backdrop-blur-md p-5 rounded-2xl border border-gray-700 space-y-4">
                 
                 <div class="space-y-1">
-                    <p class="text-xs text-gray-400 text-right pr-1 font-bold">كود الفرع (1 أو 2):</p>
+                    <p class="text-xs text-gray-400 text-right pr-1 font-bold" data-i18n="branchCodeLabel">كود الفرع (1 أو 2):</p>
                     <input type="tel" id="branchCode" class="w-full p-3 rounded-xl bg-gray-900 border border-gray-600 focus:border-gold-500 outline-none text-center font-bold text-2xl tracking-widest transition-all text-gold-500" placeholder="****" maxlength="4">
                  </div>
 
                 <div class="h-px bg-gray-700 my-2"></div>
 
-                <input type="text" id="loginName" class="w-full p-3 rounded-xl bg-gray-900 border border-gray-600 focus:border-gold-500 outline-none text-center font-bold text-lg transition-all" placeholder="اسم المشرف">
+                <input type="text" id="loginName" class="w-full p-3 rounded-xl bg-gray-900 border border-gray-600 focus:border-gold-500 outline-none text-center font-bold text-lg transition-all" data-i18n-placeholder="supervisorPlaceholder" placeholder="اسم المشرف">
                 
                 <div class="space-y-2">
-                    <p class="text-xs text-gray-400 text-right pr-1">فريق العمل (جهازك فقط):</p>
+                    <p class="text-xs text-gray-400 text-right pr-1" data-i18n="teamLabel">فريق العمل (جهازك فقط):</p>
                     <div class="flex gap-2">
-                        <input type="text" id="workerInput" onkeydown="if(event.key === 'Enter') app.addWorker(true)" class="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-600 outline-none text-sm text-center" placeholder="اضافة اسم">
+                        <input type="text" id="workerInput" onkeydown="if(event.key === 'Enter') app.addWorker(true)" class="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-600 outline-none text-sm text-center" data-i18n-placeholder="addName" placeholder="اضافة اسم">
                         <button onclick="app.addWorker(true)" class="bg-gray-700 hover:bg-gold-500 text-white w-12 rounded-xl font-bold transition-colors"><i class="fas fa-plus"></i></button>
                     </div>
                     <div id="workersTags" class="flex flex-wrap gap-2 justify-center min-h-[30px]"></div>
@@ -101,13 +105,12 @@
             </div>
 
             <button onclick="app.login()" class="w-full bg-gradient-to-r from-gold-600 to-gold-500 text-white font-bold p-4 rounded-2xl text-lg shadow-gold hover:shadow-lg transform active:scale-95 transition-all">
-                دخول النظام
+                <span data-i18n="loginBtn">دخول النظام</span>
             </button>
             
              <div id="loginLoader" class="hidden mt-4">
                 <i class="fas fa-circle-notch fa-spin text-gold-500 text-xl"></i>
             </div>
-
         </div>
     </div>
 
@@ -125,11 +128,14 @@
                     <div>
                         <h2 id="headerBranchName" class="font-bold text-lg leading-tight dark:text-gold-500">...</h2>
                         <div class="text-xs text-gray-400 font-medium">
-                            Supervisor: <span id="headerName" class="text-gray-600 dark:text-gray-300 font-bold">...</span>
+                            <span data-i18n="supTitle">Supervisor</span>: <span id="headerName" class="text-gray-600 dark:text-gray-300 font-bold">...</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <button onclick="app.openLangModal()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-gold-500 flex items-center justify-center hover:bg-gold-50">
+                        <i class="fas fa-globe"></i>
+                    </button>
                     <button onclick="app.openTeamModal()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-blue-500 flex items-center justify-center hover:bg-blue-50">
                         <i class="fas fa-users-cog"></i>
                     </button>
@@ -147,38 +153,65 @@
             <div id="rowsContainer" class="space-y-4"></div>
             <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 opacity-40">
                 <i class="fas fa-cloud text-6xl mb-4 text-gray-400"></i>
-                <p class="font-bold text-gray-500">النظام جاهز للعمل</p>
-                <p class="text-xs text-gray-400 mt-2">جاري المزامنة...</p>
+                <p class="font-bold text-gray-500" data-i18n="readyMsg">النظام جاهز للعمل</p>
+                <p class="text-xs text-gray-400 mt-2">...</p>
             </div>
         </main>
 
-        <div class="fixed bottom-24 left-0 right-0 flex justify-center gap-4 px-6 z-40 pointer-events-none no-print">
-            <button onclick="app.addRow('checkout')" class="pointer-events-auto flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-2xl shadow-lg font-bold flex items-center justify-center gap-2 transform active:scale-95 transition-all border border-red-400">
-                <i class="fas fa-sign-out-alt"></i> مغادرة
-            </button>
-            <button onclick="app.addRow('customer')" class="pointer-events-auto flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl shadow-lg font-bold flex items-center justify-center gap-2 transform active:scale-95 transition-all border border-blue-400">
-                <i class="fas fa-user-check"></i> نزيل
-            </button>
-        </div>
+     <div class="fixed bottom-24 left-0 right-0 flex justify-center gap-4 px-6 z-[100] pointer-events-none no-print">
+    <button onclick="app.addRow('checkout')" class="pointer-events-auto flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-2xl shadow-lg font-bold flex items-center justify-center gap-2 transform active:scale-95 transition-all border border-red-400">
+        <i class="fas fa-sign-out-alt"></i> <span data-i18n="checkout">مغادرة</span>
+    </button>
+    <button onclick="app.addRow('customer')" class="pointer-events-auto flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-2xl shadow-lg font-bold flex items-center justify-center gap-2 transform active:scale-95 transition-all border border-blue-400">
+        <i class="fas fa-user-check"></i> <span data-i18n="guest">نزيل</span>
+    </button>
+</div>
+
 
         <footer class="bg-white dark:bg-dark-surface p-4 border-t dark:border-gray-800 z-50 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
             <button onclick="app.validateAndOpenCloseModal()" class="w-full bg-gray-900 dark:bg-black text-white p-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-all">
-                <span>إغلاق الشفت (مسح)</span>
+                <span data-i18n="closeShift">إغلاق الشفت (مسح)</span>
                 <i class="fas fa-arrow-left"></i>
             </button>
         </footer>
     </div>
 
+    <div id="langModal" class="fixed inset-0 z-[250] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('langModal').classList.add('hidden')"></div>
+        <div class="bg-white dark:bg-dark-surface w-full max-w-sm rounded-3xl p-6 relative z-10 animate-pop-in">
+            <h3 class="text-xl font-bold text-center mb-6 dark:text-white" data-i18n="selectLang">اختر اللغة</h3>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="app.setLanguage('ar')" class="p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold text-lg flex items-center justify-between">
+                    <span>🇸🇦 العربية</span>
+                    <i class="fas fa-check text-green-500 hidden" id="lang-check-ar"></i>
+                </button>
+                <button onclick="app.setLanguage('en')" class="p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold text-lg flex items-center justify-between">
+                    <span>🇺🇸 English</span>
+                    <i class="fas fa-check text-green-500 hidden" id="lang-check-en"></i>
+                </button>
+                <button onclick="app.setLanguage('hi')" class="p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold text-lg flex items-center justify-between">
+                    <span>🇮🇳 Hindi (Colloquial)</span>
+                    <i class="fas fa-check text-green-500 hidden" id="lang-check-hi"></i>
+                </button>
+                <button onclick="app.setLanguage('bn')" class="p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-bold text-lg flex items-center justify-between">
+                    <span>🇧🇩 Bengali (Colloquial)</span>
+                    <i class="fas fa-check text-green-500 hidden" id="lang-check-bn"></i>
+                </button>
+            </div>
+            <button onclick="document.getElementById('langModal').classList.add('hidden')" class="w-full mt-4 py-3 bg-red-500 text-white rounded-xl font-bold">Close</button>
+        </div>
+    </div>
+
     <div id="teamModal" class="fixed inset-0 z-[160] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="document.getElementById('teamModal').classList.add('hidden')"></div>
         <div class="bg-gray-800 w-full max-w-sm rounded-3xl p-6 relative z-10 animate-pop-in border border-gold-500/30 text-white">
-            <h3 class="text-xl font-bold text-center mb-4 text-gold-500">الفريق <span class="text-xs text-gray-400 block mt-1">(محفوظ على هذا الجهاز)</span></h3>
+            <h3 class="text-xl font-bold text-center mb-4 text-gold-500" data-i18n="teamTitle">الفريق</h3>
             <div class="flex gap-2 mb-4">
-                <input type="text" id="modalWorkerInput" onkeydown="if(event.key === 'Enter') app.addWorker(false)" class="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-600 outline-none text-sm text-center" placeholder="إضافة اسم">
+                <input type="text" id="modalWorkerInput" onkeydown="if(event.key === 'Enter') app.addWorker(false)" class="flex-1 p-3 rounded-xl bg-gray-900 border border-gray-600 outline-none text-sm text-center" data-i18n-placeholder="addName" placeholder="إضافة اسم">
                 <button onclick="app.addWorker(false)" class="bg-gold-500 text-black w-12 rounded-xl font-bold hover:bg-gold-400"><i class="fas fa-plus"></i></button>
             </div>
             <div id="modalTeamList" class="flex flex-wrap gap-2 justify-center mb-4 min-h-[50px] max-h-[200px] overflow-y-auto"></div>
-            <button onclick="document.getElementById('teamModal').classList.add('hidden')" class="w-full py-3 bg-gray-700 rounded-xl font-bold">إغلاق</button>
+            <button onclick="document.getElementById('teamModal').classList.add('hidden')" class="w-full py-3 bg-gray-700 rounded-xl font-bold" data-i18n="closeBtn">إغلاق</button>
         </div>
     </div>
 
@@ -186,7 +219,7 @@
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="app.closePicker()"></div>
         <div class="absolute bottom-0 w-full bg-white dark:bg-dark-surface rounded-t-3xl p-6 picker-anim max-h-[70vh] flex flex-col">
             <div class="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mx-auto mb-6"></div>
-            <h3 id="pickerTitle" class="text-xl font-bold text-center mb-6 dark:text-gold-500">اختر</h3>
+            <h3 id="pickerTitle" class="text-xl font-bold text-center mb-6 dark:text-gold-500">...</h3>
             <div id="pickerGrid" class="grid grid-cols-3 gap-3 overflow-y-auto p-1 hide-scroll"></div>
         </div>
     </div>
@@ -194,7 +227,7 @@
     <div id="closeOptionsModal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="document.getElementById('closeOptionsModal').classList.add('hidden')"></div>
         <div class="bg-white dark:bg-dark-surface w-full max-w-sm rounded-3xl p-6 relative z-10 animate-pop-in">
-            <h3 class="text-xl font-bold text-center mb-6 dark:text-white">خيارات التقرير</h3>
+            <h3 class="text-xl font-bold text-center mb-6 dark:text-white" data-i18n="reportOptions">خيارات التقرير</h3>
             <div class="space-y-3">
                 <button onclick="app.printPDF()" class="w-full py-4 bg-gray-100 dark:bg-gray-700 dark:text-white rounded-2xl font-bold flex items-center justify-center gap-3">
                     <i class="fas fa-print"></i> PDF
@@ -204,7 +237,7 @@
                 </button>
                 <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
                 <button onclick="app.finishShift()" class="w-full py-4 bg-red-500 text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg">
-                    <i class="fas fa-trash-alt"></i> مسح البيانات (الكل)
+                    <i class="fas fa-trash-alt"></i> <span data-i18n="deleteAll">مسح البيانات (الكل)</span>
                 </button>
             </div>
         </div>
@@ -263,6 +296,102 @@
     </script>
 
     <script>
+        // --- TRANSLATION DICTIONARY ---
+        const translations = {
+            ar: {
+                systemTitle: "نظام متعدد المستخدمين",
+                branchCodeLabel: "كود الفرع (1 أو 2):",
+                supervisorPlaceholder: "اسم المشرف",
+                teamLabel: "فريق العمل (جهازك فقط):",
+                addName: "اضافة اسم",
+                loginBtn: "دخول النظام",
+                supTitle: "المشرف",
+                readyMsg: "النظام جاهز للعمل",
+                checkout: "مغادرة",
+                guest: "نزيل",
+                closeShift: "إغلاق الشفت (مسح)",
+                selectLang: "اختر اللغة",
+                teamTitle: "الفريق",
+                closeBtn: "إغلاق",
+                reportOptions: "خيارات التقرير",
+                deleteAll: "مسح البيانات (الكل)",
+                floor: "الدور",
+                room: "غرفة",
+                workerLabel: "عامل المنطقة",
+                corniche: "فرع الكورنيش",
+                andalus: "فرع الأندلس"
+            },
+            en: {
+                systemTitle: "Multi-User System",
+                branchCodeLabel: "Branch Code (1 or 2):",
+                supervisorPlaceholder: "Supervisor Name",
+                teamLabel: "Staff Team (Local):",
+                addName: "Add Name",
+                loginBtn: "Login",
+                supTitle: "Supervisor",
+                readyMsg: "System Ready",
+                checkout: "Checkout",
+                guest: "Guest",
+                closeShift: "Close Shift (Clear)",
+                selectLang: "Select Language",
+                teamTitle: "Team",
+                closeBtn: "Close",
+                reportOptions: "Report Options",
+                deleteAll: "Clear All Data",
+                floor: "Floor",
+                room: "Room",
+                workerLabel: "Area Staff",
+                corniche: "Corniche Branch",
+                andalus: "Andalus Branch"
+            },
+            hi: { // Colloquial Hindi for Housekeeping
+                systemTitle: "मल्टी-यूजर सिस्टम",
+                branchCodeLabel: "ब्रांच कोड (1 या 2):",
+                supervisorPlaceholder: "सुपरवाइजर का नाम",
+                teamLabel: "टीम (सिर्फ आपके फोन में):",
+                addName: "नाम जोड़ें",
+                loginBtn: "लॉगिन करें",
+                supTitle: "सुपरवाइजर",
+                readyMsg: "सिस्टम तैयार है",
+                checkout: "चेक-आउट",
+                guest: "गेस्ट (Guest)",
+                closeShift: "शिफ्ट बंद करें (Clear)",
+                selectLang: "भाषा चुनें",
+                teamTitle: "टीम",
+                closeBtn: "बंद करें",
+                reportOptions: "रिपोर्ट विकल्प",
+                deleteAll: "सब डिलीट करें",
+                floor: "फ्लोर",
+                room: "रूम",
+                workerLabel: "स्टाफ",
+                corniche: "कोर्निश ब्रांच",
+                andalus: "अंदालुस ब्रांच"
+            },
+            bn: { // Colloquial Bengali for Housekeeping
+                systemTitle: "মাল্টি-ইউজার সিস্টেম",
+                branchCodeLabel: "ব্রাঞ্চ কোড (1 বা 2):",
+                supervisorPlaceholder: "সুপারভাইজার নাম",
+                teamLabel: "টিম (আপনার মোবাইলে):",
+                addName: "নাম লিখুন",
+                loginBtn: "লগইন করুন",
+                supTitle: "সুপারভাইজার",
+                readyMsg: "সিস্টেম রেডি",
+                checkout: "চেক-আউট",
+                guest: "গেস্ট (Guest)",
+                closeShift: "শিফট শেষ করুন",
+                selectLang: "ভাষা নির্বাচন করুন",
+                teamTitle: "টিম",
+                closeBtn: "বন্ধ করুন",
+                reportOptions: "রিপোর্ট অপশন",
+                deleteAll: "সব ডিলিট করুন",
+                floor: "ফ্লোর",
+                room: "রুম",
+                workerLabel: "স্টাফ",
+                corniche: "কর্নিশ ব্রাঞ্চ",
+                andalus: "আন্দালুস ব্রাঞ্চ"
+            }
+        };
+
         const roomsConfig = {
             corniche: { 1: [101,102,103,104], 2: [201,202,203,204,205,206], 3: [301,302,303,304,305,306,307,308,309,310], 4: [401,402,403,404,405,406,407,408,409,410], 5: [501,502,503,504,505,506], 6: [601,602,603,604] },
             andalus: { 1: [101,102,103,104,105,106,107,108], 2: [201,202,203,204,205,206,207,208], 3: [301,302,303,304,305,306,307,308], 4: [401,402,403,404,405,406,407,408], 5: [501,502,503,504,505,506,507,508], 6: [601,602,603,604] }
@@ -274,9 +403,10 @@
                 branchKey: null,
                 supervisor: '',
                 data: [], 
-                unsubscribe: null
+                unsubscribe: null,
+                lang: 'ar' // Default
             },
-            localConfig: { theme: 'dark', teams: [] }, 
+            localConfig: { theme: 'dark', teams: [], lang: 'ar' }, 
             activePicker: null,
 
             init() {
@@ -284,9 +414,15 @@
                 if(saved) {
                     this.localConfig = JSON.parse(saved);
                     if(!this.localConfig.teams) this.localConfig.teams = [];
+                    // Load saved language or default to 'ar'
+                    this.state.lang = this.localConfig.lang || 'ar';
                 }
+                
                 if(this.localConfig.theme === 'dark') document.documentElement.classList.add('dark');
                 
+                // Apply language immediately
+                this.applyLanguage();
+
                 const session = localStorage.getItem('hk_elite_session');
                 if(session) {
                     const parsed = JSON.parse(session);
@@ -299,16 +435,70 @@
                 }
             },
 
+            // --- LANGUAGE LOGIC ---
+            openLangModal() {
+                document.getElementById('langModal').classList.remove('hidden');
+                // Show checkmark on current lang
+                ['ar', 'en', 'hi', 'bn'].forEach(l => {
+                    document.getElementById(`lang-check-${l}`).classList.add('hidden');
+                });
+                document.getElementById(`lang-check-${this.state.lang}`).classList.remove('hidden');
+            },
+
+            setLanguage(code) {
+                this.state.lang = code;
+                this.localConfig.lang = code;
+                this.saveLocal();
+                this.applyLanguage();
+                document.getElementById('langModal').classList.add('hidden');
+            },
+
+            applyLanguage() {
+                const t = translations[this.state.lang];
+                const isRTL = this.state.lang === 'ar';
+                
+                // 1. Set Direction
+                document.documentElement.setAttribute('lang', this.state.lang);
+                document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+                document.body.style.direction = isRTL ? 'rtl' : 'ltr';
+
+                // 2. Update Text Content
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if(t[key]) el.innerText = t[key];
+                });
+
+                // 3. Update Placeholders
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if(t[key]) el.placeholder = t[key];
+                });
+
+                // 4. Update Header Branch Name if logged in
+                if(this.state.branchKey) {
+                    const key = this.state.branchKey; // corniche or andalus
+                    document.getElementById('headerBranchName').innerText = t[key];
+                }
+
+                // 5. Re-render List to translate dynamic parts (Floor/Room labels)
+                if(this.state.data.length > 0) this.renderList();
+            },
+
+            t(key) {
+                return translations[this.state.lang][key] || key;
+            },
+
+            // --- MAIN LOGIC ---
             login() {
                 const code = document.getElementById('branchCode').value.trim();
                 const name = document.getElementById('loginName').value.trim();
 
-                if(!name) return alert('أدخل اسم المشرف');
+                if(!name) return alert(this.state.lang === 'ar' ? 'أدخل اسم المشرف' : 'Enter Supervisor Name');
                 
                 let bKey = '';
                 if(code === '1') bKey = 'corniche';
                 else if(code === '2') bKey = 'andalus';
-                else return alert('كود الفرع غير صحيح! استخدم 1 للكورنيش أو 2 للأندلس');
+                else return alert('Code Error / خطأ في الكود');
 
                 this.state.branchCode = code;
                 this.state.branchKey = bKey;
@@ -319,7 +509,7 @@
             },
 
             logout() {
-                if(confirm('تسجيل خروج؟')) {
+                if(confirm(this.state.lang === 'ar' ? 'تسجيل خروج؟' : 'Logout?')) {
                     if(this.state.unsubscribe) this.state.unsubscribe(); 
                     localStorage.removeItem('hk_elite_session');
                     location.reload();
@@ -331,8 +521,9 @@
                 document.getElementById('mainApp').classList.remove('hidden');
                 document.getElementById('mainApp').classList.add('flex');
                 
-                const bName = this.state.branchKey === 'corniche' ? 'فرع الكورنيش' : 'فرع الأندلس';
-                document.getElementById('headerBranchName').innerText = bName;
+                // Update Branch Name via Translation
+                const key = this.state.branchKey; 
+                document.getElementById('headerBranchName').innerText = this.t(key);
                 document.getElementById('headerName').innerText = this.state.supervisor;
 
                 this.listenRealtime();
@@ -344,7 +535,7 @@
                     return;
                 }
 
-                document.getElementById('emptyState').querySelector('p').innerText = "جاري الاتصال بقاعدة البيانات...";
+                //document.getElementById('emptyState').querySelector('p').innerText = "...";
                 
                 const q = window.fb.query(
                     window.fb.collection(window.dbRef, "rooms"),
@@ -382,8 +573,9 @@
                 div.innerHTML += `<div class="absolute top-0 right-0 w-1.5 h-full ${colorClass}"></div>`;
                 div.innerHTML += `<button onclick="app.deleteRow('${item.id}')" class="absolute top-2 left-2 text-gray-300 hover:text-red-500 z-10"><i class="fas fa-times"></i></button>`;
 
-                const floorVal = item.floor || 'الدور';
-                const roomVal = item.room || 'الغرفة';
+                // Use Translation for Labels
+                const floorVal = item.floor ? `${this.t('floor')} ${item.floor}` : this.t('floor');
+                const roomVal = item.room || this.t('room');
                 const roomActive = item.room ? 'text-gray-900 dark:text-white' : 'text-gray-400';
 
                 const mkPickerBtn = (field, label) => {
@@ -397,9 +589,12 @@
                         </button>
                     `;
                 };
+                
+                // Adjust Margin based on direction
+                const paddingClass = this.state.lang === 'ar' ? 'pl-6' : 'pr-6';
 
                 div.innerHTML += `
-                    <div class="flex justify-between items-start mb-4 pl-6">
+                    <div class="flex justify-between items-start mb-4 ${paddingClass}">
                         <div class="flex gap-2">
                             <button onclick="app.openPicker('${item.id}', 'floor')" class="bg-gray-100 dark:bg-dark-bg px-3 py-2 rounded-xl text-xs font-bold text-gray-500 border dark:border-gray-700 min-w-[50px]">${floorVal}</button>
                             <button onclick="app.openPicker('${item.id}', 'room')" class="text-2xl font-black ${roomActive} flex items-center gap-2">
@@ -439,7 +634,7 @@
                 if(list.length > 0) {
                     const lastItem = list[list.length - 1];
                     if((!lastItem.start || !lastItem.room) && lastItem.lastEditor === this.state.supervisor) {
-                        return alert('⚠️ أكمل بيانات الغرفة السابقة أولاً');
+                        return alert('⚠️ Check previous room!');
                     }
                 }
 
@@ -457,7 +652,7 @@
                     await window.fb.addDoc(window.fb.collection(window.dbRef, "rooms"), newRow);
                     setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
                 } catch(e) {
-                    alert('خطأ في الاتصال: ' + e.message);
+                    alert('Error: ' + e.message);
                 }
             },
 
@@ -468,7 +663,6 @@
                     updateData[field] = val;
                     if(field === 'floor') updateData['room'] = ''; 
                     updateData['lastEditor'] = this.state.supervisor; 
-                    
                     await window.fb.updateDoc(ref, updateData);
                 } catch(e) {
                     console.error(e);
@@ -476,7 +670,7 @@
             },
 
             async deleteRow(id) {
-                if(confirm('حذف هذا السطر؟')) {
+                if(confirm(this.state.lang === 'ar' ? 'حذف؟' : 'Delete?')) {
                      await window.fb.deleteDoc(window.fb.doc(window.dbRef, "rooms", id));
                 }
             },
@@ -557,17 +751,17 @@
                 
                 let options = [];
                 if(field === 'floor') {
-                    title.innerText = 'اختر الدور';
-                    options = [1,2,3,4,5,6].map(f => ({ val: f, label: `الدور ${f}` }));
+                    title.innerText = this.t('floor');
+                    options = [1,2,3,4,5,6].map(f => ({ val: f, label: `${f}` }));
                 } 
                 else if(field === 'room') {
-                    if(!item.floor) return alert('اختر الدور أولاً');
-                    title.innerText = `غرف الدور ${item.floor}`;
+                    if(!item.floor) return alert('Select Floor First');
+                    title.innerText = `${this.t('room')} (Floor ${item.floor})`;
                     const rooms = roomsConfig[this.state.branchKey][item.floor] || [];
                     options = rooms.map(r => ({ val: r, label: r }));
                 } 
                 else {
-                    title.innerText = `عامل المنطقة (${field})`;
+                    title.innerText = `${this.t('workerLabel')} (${field})`;
                     options = this.localConfig.teams.map(w => ({ val: w, label: w }));
                 }
 
@@ -588,7 +782,7 @@
             },
 
             validateAndOpenCloseModal() {
-                if(this.state.data.length === 0) return alert('القائمة فارغة');
+                if(this.state.data.length === 0) return alert('List Empty');
                 
                 document.querySelectorAll('.error-pulse').forEach(el => {
                     el.classList.remove('border-red-500', 'bg-red-100', 'error-pulse');
@@ -596,7 +790,7 @@
                 });
 
                 let hasError = false;
-                if(this.state.data.some(i => !i.room)) return alert('⚠️ توجد غرفة بدون رقم!');
+                if(this.state.data.some(i => !i.room)) return alert('⚠️ Room Number Missing!');
 
                 this.state.data.forEach(item => {
                     const startEl = document.getElementById(`time-start-${item.id}`);
@@ -615,7 +809,7 @@
                 });
 
                 if(hasError) {
-                    alert('⛔ يجب تحديد وقت البدء والانتهاء للجميع.');
+                    alert('⛔ Times Missing!');
                     return;
                 }
                 document.getElementById('closeOptionsModal').classList.remove('hidden');
@@ -642,11 +836,11 @@
             },
 
             sendWhatsApp() {
-                let text = `*🧹 تقرير Elite - ${this.state.branchKey === 'corniche' ? 'الكورنيش' : 'الأندلس'}*\n👤 ${this.state.supervisor}\n\n`;
+                let text = `*🧹 Report - ${this.t(this.state.branchKey)}*\n👤 ${this.state.supervisor}\n\n`;
                 ['checkout', 'customer'].forEach(sec => {
                     const items = this.state.data.filter(i => i.section === sec);
                     if(items.length > 0) {
-                        text += `*${sec === 'checkout' ? '🔴 مغادرة' : '🔵 نزيل'}*\n`;
+                        text += `*${sec === 'checkout' ? '🔴 CheckOut' : '🔵 Guest'}*\n`;
                         items.forEach(i => {
                             text += `🔹 *${i.room}* (${i.start||'--'} ⮕ ${i.end||'--'})\n   Liv:${i.living||'-'} | Kit:${i.kitchen||'-'} | Bath:${i.bath||'-'}\n`;
                         });
@@ -657,7 +851,7 @@
             },
             
             async finishShift() {
-                if(confirm('هل أنت متأكد؟ سيتم مسح بيانات هذا الفرع بالكامل من السيرفر!')) {
+                if(confirm(this.state.lang === 'ar' ? 'مسح كل البيانات؟' : 'Clear All Data?')) {
                     const batch = window.fb.writeBatch(window.dbRef);
                     const q = window.fb.query(window.fb.collection(window.dbRef, "rooms"), window.fb.where("branch", "==", this.state.branchKey));
                     const snapshot = await window.fb.getDocs(q);
@@ -685,4 +879,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
