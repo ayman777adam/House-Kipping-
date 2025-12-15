@@ -1,5 +1,5 @@
 // تم تغيير الرقم إلى v9 لإجبار الهاتف على التحديث
-const CACHE_NAME = 'elite-v10-force-update';
+const CACHE_NAME = 'elite-v11-force-update';
 const ASSETS = [
   './',
   './index.html',
