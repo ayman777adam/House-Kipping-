@@ -16,569 +16,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
     <script>
-        // --- TRANSLATION DICTIONARY ---
-        const translations = {
-            ar: {
-                systemTitle: "نظام متعدد المستخدمين",
-                branchCodeLabel: "كود الفرع (1 أو 2):",
-                supervisorPlaceholder: "اسم المشرف",
-                teamLabel: "فريق العمل (جهازك فقط):",
-                addName: "اضافة اسم",
-                loginBtn: "دخول النظام",
-                supTitle: "المشرف",
-                readyMsg: "النظام جاهز للعمل",
-                checkout: "مغادرة",
-                guest: "نزيل",
-                closeShift: "إغلاق الشفت (مسح)",
-                selectLang: "اختر اللغة",
-                teamTitle: "الفريق",
-                closeBtn: "إغلاق",
-                reportOptions: "خيارات التقرير",
-                deleteAll: "مسح البيانات (الكل)",
-                floor: "الدور",
-                room: "غرفة",
-                workerLabel: "عامل المنطقة",
-                corniche: "فرع الكورنيش",
-                andalus: "فرع الأندلس"
-            },
-            en: {
-                systemTitle: "Multi-User System",
-                branchCodeLabel: "Branch Code (1 or 2):",
-                supervisorPlaceholder: "Supervisor Name",
-                teamLabel: "Staff Team (Local):",
-                addName: "Add Name",
-                loginBtn: "Login",
-                supTitle: "Supervisor",
-                readyMsg: "System Ready",
-                checkout: "Checkout",
-                guest: "Guest",
-                closeShift: "Close Shift (Clear)",
-                selectLang: "Select Language",
-                teamTitle: "Team",
-                closeBtn: "Close",
-                reportOptions: "Report Options",
-                deleteAll: "Clear All Data",
-                floor: "Floor",
-                room: "Room",
-                workerLabel: "Area Staff",
-                corniche: "Corniche Branch",
-                andalus: "Andalus Branch"
-            },
-            hi: {
-                systemTitle: "मल्टी-यूजर सिस्टम",
-                branchCodeLabel: "ब्रांच कोड (1 या 2):",
-                supervisorPlaceholder: "सुपरवाइजर का नाम",
-                teamLabel: "टीम (सिर्फ आपके फोन में):",
-                addName: "नाम जोड़ें",
-                loginBtn: "लॉगिन करें",
-                supTitle: "सुपरवाइजर",
-                readyMsg: "सिस्टम तैयार है",
-                checkout: "चेक-आउट",
-                guest: "गेस्ट (Guest)",
-                closeShift: "शिफ्ट बंद करें (Clear)",
-                selectLang: "भाषा चुनें",
-                teamTitle: "टीम",
-                closeBtn: "बंद करें",
-                reportOptions: "रिपोर्ट विकल्प",
-                deleteAll: "सब डिलीट करें",
-                floor: "फ्लोर",
-                room: "रूम",
-                workerLabel: "स्टाफ",
-                corniche: "कोर्निश ब्रांच",
-                andalus: "अंदालुस ब्रांच"
-            },
-            bn: {
-                systemTitle: "মাল্টি-ইউজার সিস্টেম",
-                branchCodeLabel: "ব্রাঞ্চ কোড (1 বা 2):",
-                supervisorPlaceholder: "সুপারভাইজার নাম",
-                teamLabel: "টিম (আপনার মোবাইলে):",
-                addName: "নাম লিখুন",
-                loginBtn: "লগইন করুন",
-                supTitle: "সুপারভাইজার",
-                readyMsg: "সিস্টেম রেডি",
-                checkout: "চেক-আউট",
-                guest: "গেস্ট (Guest)",
-                closeShift: "শিফট শেষ করুন",
-                selectLang: "ভাষা নির্বাচন করুন",
-                teamTitle: "টিম",
-                closeBtn: "বন্ধ করুন",
-                reportOptions: "রিপোর্ট অপশন",
-                deleteAll: "সব ডিলিট করুন",
-                floor: "ফ্লোর",
-                room: "রুম",
-                workerLabel: "স্টাফ",
-                corniche: "কর্নিশ ব্রাঞ্চ",
-                andalus: "আন্দালুস ব্রাঞ্চ"
-            }
-        };
-
-        const roomsConfig = {
-            corniche: { 1: [101,102,103,104], 2: [201,202,203,204,205,206], 3: [301,302,303,304,305,306,307,308,309,310], 4: [401,402,403,404,405,406,407,408,409,410], 5: [501,502,503,504,505,506], 6: [601,602,603,604] },
-            andalus: { 1: [101,102,103,104,105,106,107,108], 2: [201,202,203,204,205,206,207,208], 3: [301,302,303,304,305,306,307,308], 4: [401,402,403,404,405,406,407,408], 5: [501,502,503,504,505,506,507,508], 6: [601,602,603,604] }
-        };
-
-        const app = {
-            state: {
-                branchCode: null,
-                branchKey: null,
-                supervisor: '',
-                data: [], 
-                unsubscribe: null,
-                lang: 'ar'
-            },
-            localConfig: { theme: 'dark', teams: [], lang: 'ar' }, 
-            activePicker: null,
-
-            init() {
-                const saved = localStorage.getItem('hk_elite_local');
-                if(saved) {
-                    this.localConfig = JSON.parse(saved);
-                    if(!this.localConfig.teams) this.localConfig.teams = [];
-                    this.state.lang = this.localConfig.lang || 'ar';
-                }
-                
-                if(this.localConfig.theme === 'dark') document.documentElement.classList.add('dark');
-                this.applyLanguage();
-
-                const session = localStorage.getItem('hk_elite_session');
-                if(session) {
-                    const parsed = JSON.parse(session);
-                    this.state.branchCode = parsed.code;
-                    this.state.branchKey = parsed.key;
-                    this.state.supervisor = parsed.name;
-                    this.startAppMode();
-                } else {
-                    this.renderWorkerTags(true);
-                }
-            },
-
-            openLangModal() {
-                document.getElementById('langModal').classList.remove('hidden');
-                ['ar', 'en', 'hi', 'bn'].forEach(l => {
-                    document.getElementById(`lang-check-${l}`).classList.add('hidden');
-                });
-                document.getElementById(`lang-check-${this.state.lang}`).classList.remove('hidden');
-            },
-
-            setLanguage(code) {
-                this.state.lang = code;
-                this.localConfig.lang = code;
-                this.saveLocal();
-                this.applyLanguage();
-                document.getElementById('langModal').classList.add('hidden');
-            },
-
-            applyLanguage() {
-                const t = translations[this.state.lang];
-                const isRTL = this.state.lang === 'ar';
-                document.documentElement.setAttribute('lang', this.state.lang);
-                document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
-                document.body.style.direction = isRTL ? 'rtl' : 'ltr';
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if(t[key]) el.innerText = t[key];
-                });
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                    const key = el.getAttribute('data-i18n-placeholder');
-                    if(t[key]) el.placeholder = t[key];
-                });
-                if(this.state.branchKey) {
-                    const key = this.state.branchKey;
-                    document.getElementById('headerBranchName').innerText = t[key];
-                }
-                if(this.state.data.length > 0) this.renderList();
-            },
-
-            t(key) { return translations[this.state.lang][key] || key; },
-
-            login() {
-                const code = document.getElementById('branchCode').value.trim();
-                const name = document.getElementById('loginName').value.trim();
-
-                if(!name) return alert(this.state.lang === 'ar' ? 'أدخل اسم المشرف' : 'Enter Supervisor Name');
-                
-                let bKey = '';
-                if(code === '1') bKey = 'corniche';
-                else if(code === '2') bKey = 'andalus';
-                else return alert('Code Error / خطأ في الكود');
-
-                this.state.branchCode = code;
-                this.state.branchKey = bKey;
-                this.state.supervisor = name;
-                
-                localStorage.setItem('hk_elite_session', JSON.stringify({ code, key: bKey, name }));
-                this.startAppMode();
-            },
-
-            logout() {
-                if(confirm(this.state.lang === 'ar' ? 'تسجيل خروج؟' : 'Logout?')) {
-                    if(this.state.unsubscribe) this.state.unsubscribe(); 
-                    localStorage.removeItem('hk_elite_session');
-                    location.reload();
-                }
-            },
-
-            startAppMode() {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                document.getElementById('mainApp').classList.add('flex');
-                
-                const key = this.state.branchKey; 
-                document.getElementById('headerBranchName').innerText = this.t(key);
-                document.getElementById('headerName').innerText = this.state.supervisor;
-
-                this.listenRealtime();
-            },
-
-            listenRealtime() {
-                if(!window.fb) {
-                    this.onFirebaseReady = () => this.listenRealtime();
-                    return;
-                }
-                
-                // === تعديل هام: إزالة الترتيب من هنا لتجنب مشاكل الفهرس ===
-                const q = window.fb.query(
-                    window.fb.collection(window.dbRef, "rooms"),
-                    window.fb.where("branch", "==", this.state.branchKey)
-                    // تم إيقاف الترتيب عبر فايربيس مؤقتاً
-                );
-
-                this.state.unsubscribe = window.fb.onSnapshot(q, (snapshot) => {
-                    this.state.data = [];
-                    snapshot.forEach((doc) => {
-                        this.state.data.push({ id: doc.id, ...doc.data() });
-                    });
-                    
-                    // ترتيب البيانات يدوياً في المتصفح حسب التوقيت
-                    this.state.data.sort((a, b) => {
-                        const t1 = a.timestamp ? a.timestamp.seconds : 0;
-                        const t2 = b.timestamp ? b.timestamp.seconds : 0;
-                        return t1 - t2;
-                    });
-
-                    this.renderList();
-                });
-            },
-
-            renderList() {
-                const container = document.getElementById('rowsContainer');
-                container.innerHTML = '';
-                
-                if(this.state.data.length === 0) {
-                    document.getElementById('emptyState').classList.remove('hidden');
-                    return;
-                }
-                document.getElementById('emptyState').classList.add('hidden');
-                
-                this.state.data.forEach(item => container.appendChild(this.createLuxuryCard(item)));
-            },
-
-            createLuxuryCard(item) {
-                const div = document.createElement('div');
-                div.className = 'row-anim bg-white dark:bg-dark-surface p-4 rounded-2xl shadow-luxury dark:shadow-none dark:border dark:border-gray-700 relative overflow-hidden group';
-                
-                const colorClass = item.section === 'checkout' ? 'bg-red-500' : 'bg-blue-500';
-                div.innerHTML += `<div class="absolute top-0 right-0 w-1.5 h-full ${colorClass}"></div>`;
-                div.innerHTML += `<button onclick="app.deleteRow('${item.id}')" class="absolute top-2 left-2 text-gray-300 hover:text-red-500 z-10"><i class="fas fa-times"></i></button>`;
-
-                const floorVal = item.floor ? `${this.t('floor')} ${item.floor}` : this.t('floor');
-                const roomVal = item.room || this.t('room');
-                const roomActive = item.room ? 'text-gray-900 dark:text-white' : 'text-gray-400';
-
-                const mkPickerBtn = (field, label) => {
-                    const val = item[field];
-                    const hasVal = !!val;
-                    return `
-                        <button onclick="app.openPicker('${item.id}', '${field}')" 
-                            class="flex flex-col items-center justify-center p-2 rounded-xl transition-all ${hasVal ? 'bg-gold-500 text-white shadow-gold' : 'bg-gray-50 dark:bg-dark-bg text-gray-400 border border-gray-100 dark:border-gray-700'}">
-                            <span class="text-[10px] font-bold uppercase opacity-80 mb-1">${label}</span>
-                            <span class="font-bold text-xs truncate w-full text-center">${val || '-'}</span>
-                        </button>
-                    `;
-                };
-                
-                const paddingClass = this.state.lang === 'ar' ? 'pl-6' : 'pr-6';
-
-                div.innerHTML += `
-                    <div class="flex justify-between items-start mb-4 ${paddingClass}">
-                        <div class="flex gap-2">
-                            <button onclick="app.openPicker('${item.id}', 'floor')" class="bg-gray-100 dark:bg-dark-bg px-3 py-2 rounded-xl text-xs font-bold text-gray-500 border dark:border-gray-700 min-w-[50px]">${floorVal}</button>
-                            <button onclick="app.openPicker('${item.id}', 'room')" class="text-2xl font-black ${roomActive} flex items-center gap-2">
-                                ${roomVal} <i class="fas fa-chevron-down text-xs text-gold-500 opacity-50"></i>
-                            </button>
-                        </div>
-                        <div class="flex flex-col items-end gap-1">
-                             <div id="time-start-${item.id}" class="flex items-center bg-gray-100 dark:bg-dark-bg rounded-lg p-1 border border-transparent dark:border-gray-700 transition-colors duration-300">
-                                <span class="text-[10px] font-bold text-green-600 px-1">IN</span>
-                                <input type="time" value="${item.start || ''}" onchange="app.updateField('${item.id}', 'start', this.value)" class="bg-transparent font-mono font-bold w-16 text-center text-xs dark:text-white focus:outline-none">
-                                <button onclick="app.setNow('${item.id}', 'start')" class="w-6 h-6 bg-green-500 text-white rounded flex items-center justify-center shadow-lg active:scale-90 transition-transform"><i class="fas fa-play text-[10px]"></i></button>
-                            </div>
-                            <div id="time-end-${item.id}" class="flex items-center bg-gray-100 dark:bg-dark-bg rounded-lg p-1 border border-transparent dark:border-gray-700 transition-colors duration-300">
-                                <span class="text-[10px] font-bold text-red-600 px-1">OUT</span>
-                                <input type="time" value="${item.end || ''}" onchange="app.updateField('${item.id}', 'end', this.value)" class="bg-transparent font-mono font-bold w-16 text-center text-xs dark:text-white focus:outline-none">
-                                <button onclick="app.setNow('${item.id}', 'end')" class="w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center shadow-lg active:scale-90 transition-transform"><i class="fas fa-stop text-[10px]"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-5 gap-2">
-                        ${mkPickerBtn('living', 'Liv')}
-                        ${mkPickerBtn('kitchen', 'Kit')}
-                        ${mkPickerBtn('bath', 'Bath')}
-                        ${mkPickerBtn('bed1', 'B1')}
-                        ${mkPickerBtn('bed2', 'B2')}
-                    </div>
-                    <div class="mt-2 text-[9px] text-gray-300 text-left w-full pl-1 font-mono">
-                         ${item.lastEditor || ''}
-                    </div>
-                `;
-                return div;
-            },
-
-            async addRow(section) {
-                const list = this.state.data;
-                if(list.length > 0) {
-                    const lastItem = list[list.length - 1];
-                    if((!lastItem.start || !lastItem.room) && lastItem.lastEditor === this.state.supervisor) {
-                        return alert('⚠️ Check previous room / الرجاء إكمال الغرفة السابقة');
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        gold: { 400: '#fbbf24', 500: '#d97706', 600: '#b45309' },
+                        dark: { bg: '#0f172a', surface: '#1e293b', card: '#334155' }
+                    },
+                    boxShadow: {
+                        'luxury': '0 4px 20px -2px rgba(0, 0, 0, 0.1)',
+                        'gold': '0 4px 15px -3px rgba(217, 119, 6, 0.3)'
                     }
-                }
-
-                // === إضافة Try/Catch لحماية الإضافة ===
-                try {
-                    if(!window.fb || !window.fb.serverTimestamp) throw new Error("Firebase not ready");
-
-                    const newRow = { 
-                        branch: this.state.branchKey,
-                        section: section, 
-                        floor: '', room: '', 
-                        living: '', kitchen: '', bath: '', bed1: '', bed2: '', 
-                        start: '', end: '',
-                        timestamp: window.fb.serverTimestamp(),
-                        lastEditor: this.state.supervisor
-                    };
-
-                    await window.fb.addDoc(window.fb.collection(window.dbRef, "rooms"), newRow);
-                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
-                } catch(e) {
-                    alert('Error adding row: ' + e.message);
-                }
-            },
-
-            async updateField(id, field, val) {
-                try {
-                    const ref = window.fb.doc(window.dbRef, "rooms", id);
-                    const updateData = {};
-                    updateData[field] = val;
-                    if(field === 'floor') updateData['room'] = ''; 
-                    updateData['lastEditor'] = this.state.supervisor; 
-                    await window.fb.updateDoc(ref, updateData);
-                } catch(e) {
-                    console.error(e);
-                }
-            },
-
-            async deleteRow(id) {
-                if(confirm(this.state.lang === 'ar' ? 'حذف؟' : 'Delete?')) {
-                     await window.fb.deleteDoc(window.fb.doc(window.dbRef, "rooms", id));
-                }
-            },
-
-            setNow(id, field) {
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                this.updateField(id, field, timeStr);
-            },
-
-            addWorker(isLoginScreen) {
-                const inputId = isLoginScreen ? 'workerInput' : 'modalWorkerInput';
-                const input = document.getElementById(inputId);
-                const name = input.value.trim();
-                if(name) {
-                    if(!this.localConfig.teams.includes(name)) {
-                        this.localConfig.teams.push(name);
-                        this.saveLocal();
-                        if(isLoginScreen) this.renderWorkerTags(true);
-                        else this.renderModalTeam();
-                    }
-                    input.value = '';
-                }
-                input.focus();
-            },
-            
-            removeWorker(name, isLoginScreen) {
-                const idx = this.localConfig.teams.indexOf(name);
-                if(idx > -1) {
-                    this.localConfig.teams.splice(idx, 1);
-                    this.saveLocal();
-                    if(isLoginScreen) this.renderWorkerTags(true);
-                    else this.renderModalTeam();
-                }
-            },
-
-            renderWorkerTags(isLoginScreen) {
-                if(!isLoginScreen) return;
-                const container = document.getElementById('workersTags');
-                container.innerHTML = this.localConfig.teams.map(w => `
-                    <span class="bg-gray-700 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 border border-gold-500/30">
-                        ${w} <button onclick="app.removeWorker('${w}', true)" class="text-red-400">&times;</button>
-                    </span>
-                `).join('');
-            },
-
-            openTeamModal() {
-                this.renderModalTeam();
-                document.getElementById('teamModal').classList.remove('hidden');
-            },
-
-            renderModalTeam() {
-                const container = document.getElementById('modalTeamList');
-                container.innerHTML = this.localConfig.teams.map(w => `
-                    <span class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-gold-500/30">
-                        ${w} <button onclick="app.removeWorker('${w}', false)" class="text-red-400 hover:text-red-300 ml-1"><i class="fas fa-trash"></i></button>
-                    </span>
-                `).join('');
-            },
-
-            toggleTheme() {
-                document.documentElement.classList.toggle('dark');
-                this.localConfig.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-                document.getElementById('themeIcon').className = this.localConfig.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                this.saveLocal();
-            },
-
-            saveLocal() { localStorage.setItem('hk_elite_local', JSON.stringify(this.localConfig)); },
-
-            openPicker(id, field) {
-                this.activePicker = { id, field };
-                const item = this.state.data.find(i => i.id === id);
-                if(!item) return;
-
-                const grid = document.getElementById('pickerGrid');
-                const title = document.getElementById('pickerTitle');
-                grid.innerHTML = '';
-                
-                let options = [];
-                if(field === 'floor') {
-                    title.innerText = this.t('floor');
-                    options = [1,2,3,4,5,6].map(f => ({ val: f, label: `${f}` }));
-                } 
-                else if(field === 'room') {
-                    if(!item.floor) return alert('Select Floor First');
-                    title.innerText = `${this.t('room')} (Floor ${item.floor})`;
-                    const rooms = roomsConfig[this.state.branchKey][item.floor] || [];
-                    options = rooms.map(r => ({ val: r, label: r }));
-                } 
-                else {
-                    title.innerText = `${this.t('workerLabel')} (${field})`;
-                    options = this.localConfig.teams.map(w => ({ val: w, label: w }));
-                }
-
-                options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    const isActive = item[field] == opt.val;
-                    btn.className = `p-4 rounded-xl font-bold text-sm shadow-sm transition-all ${isActive ? 'bg-gold-500 text-white ring-2 ring-gold-300' : 'bg-gray-100 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-200'}`;
-                    btn.innerText = opt.label;
-                    btn.onclick = () => { this.updateField(id, field, opt.val); this.closePicker(); };
-                    grid.appendChild(btn);
-                });
-                document.getElementById('pickerModal').classList.remove('hidden');
-            },
-
-            closePicker() {
-                document.getElementById('pickerModal').classList.add('hidden');
-                this.activePicker = null;
-            },
-
-            validateAndOpenCloseModal() {
-                if(this.state.data.length === 0) return alert('List Empty');
-                
-                document.querySelectorAll('.error-pulse').forEach(el => {
-                    el.classList.remove('border-red-500', 'bg-red-100', 'error-pulse');
-                    el.classList.add('border-transparent');
-                });
-
-                let hasError = false;
-                if(this.state.data.some(i => !i.room)) return alert('⚠️ Room Number Missing!');
-
-                this.state.data.forEach(item => {
-                    const startEl = document.getElementById(`time-start-${item.id}`);
-                    const endEl = document.getElementById(`time-end-${item.id}`);
-
-                    if(!item.start && startEl) {
-                        startEl.classList.remove('border-transparent', 'dark:border-gray-700');
-                        startEl.classList.add('error-pulse');
-                        hasError = true;
-                    }
-                    if(!item.end && endEl) {
-                        endEl.classList.remove('border-transparent', 'dark:border-gray-700');
-                        endEl.classList.add('error-pulse');
-                        hasError = true;
-                    }
-                });
-
-                if(hasError) {
-                    alert('⛔ Times Missing!');
-                    return;
-                }
-                document.getElementById('closeOptionsModal').classList.remove('hidden');
-            },
-
-            printPDF() {
-                document.getElementById('pDate').innerText = new Date().toLocaleDateString('en-GB');
-                document.getElementById('pBranch').innerText = this.state.branchKey === 'corniche' ? 'CORNICHE' : 'ANDALUS';
-                document.getElementById('pName').innerText = this.state.supervisor;
-                const tbody = document.getElementById('printBody');
-                tbody.innerHTML = '';
-                
-                const sorted = [...this.state.data].sort((a,b) => (a.section === 'checkout' ? -1 : 1));
-                let lastSection = '';
-                sorted.forEach(item => {
-                    if(item.section !== lastSection) {
-                        const title = item.section === 'checkout' ? 'Check Out Rooms' : 'Customer Rooms';
-                        tbody.innerHTML += `<tr><td colspan="8" class="section-header">${title}</td></tr>`;
-                        lastSection = item.section;
-                    }
-                    tbody.innerHTML += `<tr><td><b>${item.room}</b></td><td>${item.living||'-'}</td><td>${item.kitchen||'-'}</td><td>${item.bath||'-'}</td><td>${item.bed1||'-'}</td><td>${item.bed2||'-'}</td><td>${item.start||''}</td><td>${item.end||''}</td></tr>`;
-                });
-                window.print();
-            },
-
-            sendWhatsApp() {
-                let text = `*🧹 Report - ${this.t(this.state.branchKey)}*\n👤 ${this.state.supervisor}\n\n`;
-                ['checkout', 'customer'].forEach(sec => {
-                    const items = this.state.data.filter(i => i.section === sec);
-                    if(items.length > 0) {
-                        text += `*${sec === 'checkout' ? '🔴 CheckOut' : '🔵 Guest'}*\n`;
-                        items.forEach(i => {
-                            text += `🔹 *${i.room}* (${i.start||'--'} ⮕ ${i.end||'--'})\n   Liv:${i.living||'-'} | Kit:${i.kitchen||'-'} | Bath:${i.bath||'-'}\n`;
-                        });
-                        text += `\n`;
-                    }
-                });
-                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-            },
-            
-            async finishShift() {
-                if(confirm(this.state.lang === 'ar' ? 'مسح كل البيانات؟' : 'Clear All Data?')) {
-                    const batch = window.fb.writeBatch(window.dbRef);
-                    const q = window.fb.query(window.fb.collection(window.dbRef, "rooms"), window.fb.where("branch", "==", this.state.branchKey));
-                    const snapshot = await window.fb.getDocs(q);
-                    
-                    snapshot.forEach(doc => {
-                        batch.delete(doc.ref);
-                    });
-
-                    await batch.commit();
-                    document.getElementById('closeOptionsModal').classList.add('hidden');
                 }
             }
-        };
-
-        // --- إصلاح الوصول العام ---
-        window.app = app;
-
-        app.init();
+        }
     </script>
 
     <style>
@@ -1082,12 +535,11 @@
                     return;
                 }
 
-                //document.getElementById('emptyState').querySelector('p').innerText = "...";
-                
+                // === تعديل هام: إزالة الترتيب من هنا لتجنب مشاكل الفهرس ===
                 const q = window.fb.query(
                     window.fb.collection(window.dbRef, "rooms"),
-                    window.fb.where("branch", "==", this.state.branchKey),
-                    window.fb.orderBy("timestamp", "asc")
+                    window.fb.where("branch", "==", this.state.branchKey)
+                    // window.fb.orderBy("timestamp", "asc") <-- تم إيقاف هذا السطر مؤقتاً
                 );
 
                 this.state.unsubscribe = window.fb.onSnapshot(q, (snapshot) => {
@@ -1095,6 +547,14 @@
                     snapshot.forEach((doc) => {
                         this.state.data.push({ id: doc.id, ...doc.data() });
                     });
+                    
+                    // ترتيب البيانات يدوياً في المتصفح حسب التوقيت
+                    this.state.data.sort((a, b) => {
+                        const t1 = a.timestamp ? a.timestamp.seconds : 0;
+                        const t2 = b.timestamp ? b.timestamp.seconds : 0;
+                        return t1 - t2;
+                    });
+                    
                     this.renderList();
                 });
             },
@@ -1185,17 +645,20 @@
                     }
                 }
 
-                const newRow = { 
-                    branch: this.state.branchKey,
-                    section: section, 
-                    floor: '', room: '', 
-                    living: '', kitchen: '', bath: '', bed1: '', bed2: '', 
-                    start: '', end: '',
-                    timestamp: window.fb.serverTimestamp(),
-                    lastEditor: this.state.supervisor
-                };
-
+                // === إضافة Try/Catch لحماية الإضافة ===
                 try {
+                    if(!window.fb || !window.fb.serverTimestamp) throw new Error("Firebase not ready");
+                    
+                    const newRow = { 
+                        branch: this.state.branchKey,
+                        section: section, 
+                        floor: '', room: '', 
+                        living: '', kitchen: '', bath: '', bed1: '', bed2: '', 
+                        start: '', end: '',
+                        timestamp: window.fb.serverTimestamp(),
+                        lastEditor: this.state.supervisor
+                    };
+                    
                     await window.fb.addDoc(window.fb.collection(window.dbRef, "rooms"), newRow);
                     setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
                 } catch(e) {
